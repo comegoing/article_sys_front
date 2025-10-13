@@ -8,8 +8,8 @@
       <a-layout-sider class="left-side" :width="300">
         <div class="select">
           <a-icon type="edit" theme="twoTone" /> 筛选条件
-          <a-button class="clear" type="primary" @click="clear">
-            <a-icon type="delete" theme="filled" />清除筛选
+          <a-button class="clear" type="primary" icon="delete" @click="clear">
+            清除筛选
           </a-button>
         </div>
 
@@ -60,41 +60,62 @@
         </a-row>
       </a-layout-sider>
       <a-layout-content class="content">
+        <!-- 顶部搜索栏与导出框 -->
+        <div class="top-content">
+          <a-button type="primary" icon="search" theme="filled">
+            检索论文
+          </a-button>
+          <a-button type="primary" icon="download" theme="filled">
+            导出论文
+          </a-button>
+        </div>
         <!-- 论文时间分布图表 -->
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <h3 class="font-medium mb-3">论文时间分布</h3>
-          <div class="h-48">
-            <canvas id="papersChart"></canvas>
+        <div v-if="this.papers.length > 0">
+          <p style="font-weight: bold; font-size: 20px; text-align: center">
+            论文时间分布
+          </p>
+          <div>
+            <canvas></canvas>
           </div>
         </div>
 
-        <a-list
-          item-layout="vertical"
-          size="large"
-          :pagination="pagination"
-          :data-source="listData"
-        >
-          <a-list-item slot="renderItem" key="item.titleZH" slot-scope="item">
-            <div class="content-section">
-              <p>
-                <strong>{{ item.titleZH }}</strong>
-              </p>
-              <p>{{ item.author }}</p>
-              <p>{{ item.abstractZH }}</p>
+        <div>
+          <div :style="{ borderBottom: '1px solid #E9E9E9' }">
+            <a-checkbox
+              @change="selectAll"
+              style="font-weight: bold; font-size: 18px"
+            >
+              全选
+            </a-checkbox>
+          </div>
+          <br />
+          <a-row
+            class="card-row"
+            v-for="(item, index) in papers"
+            :key="index"
+            :value="item.url"
+          >
+            <div style="display: flex">
+              <a-checkbox
+                style="margin-right: 10px"
+                v-model="item.detailChecked"
+                @change="selectOne(item, index)"
+              >
+              </a-checkbox>
+              <a-card
+                :title="item.titleZH"
+                style="width: 100%"
+                :hoverable="true"
+              >
+                <a slot="extra" @click="showDetails(item, index)">详情</a>
+                <p>{{ item.author }}</p>
+                <p>{{ item.abstractZH }}</p>
+                <p v-if="item.detailVisable">{{ item.titleEN }}</p>
+                <p v-if="item.detailVisable">{{ item.abstractEN }}</p>
+              </a-card>
             </div>
-            <a-collapse>
-              <a-collapse-panel :key="item.titleZH" :show-arrow="false">
-                <!-- 展开后的详细内容 -->
-                <div class="content-section">
-                  <p>
-                    <strong>{{ item.titleEN }}</strong>
-                  </p>
-                  <p>{{ item.abstractEN }}</p>
-                </div>
-              </a-collapse-panel>
-            </a-collapse>
-          </a-list-item>
-        </a-list>
+          </a-row>
+        </div>
       </a-layout-content>
     </a-layout>
     <a-layout-footer class="footer">
@@ -104,15 +125,17 @@
 </template>
 
 <script>
-const listData = [];
-for (let i = 0; i < 23; i++) {
-  listData.push({
+const papers = [];
+for (let i = 0; i < 13; i++) {
+  papers.push({
     url: "https://www.antdv.com/",
     titleZH: "一篇中文论文",
     author: "大卫",
     abstractZH: "这是一篇中文文献摘要",
     titleEN: "an English article",
     abstractEN: "this is a Chinese article abstract",
+    detailVisable: false,
+    detailChecked: false,
   });
 }
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
@@ -138,7 +161,7 @@ export default {
       collapsed: false,
       locale,
       value: "1",
-      listData,
+      papers,
       pagination: {
         onChange: (page) => {
           console.log(page);
@@ -168,6 +191,20 @@ export default {
       this.datesList = [];
       this.keyWord = "";
       this.articleType = null;
+    },
+    // 卡片展示更多内容
+    showDetails(item, index) {
+      papers[index].detailVisable = !papers[index].detailVisable;
+    },
+    // 选择所有卡片
+    selectAll(e) {
+      console.log(e);
+      papers.map((item) => {
+        item.detailChecked = e.target.checked;
+      });
+    },
+    selectOne(item, index) {
+      console.log(item, index);
     },
   },
   created() {
@@ -247,5 +284,14 @@ export default {
 }
 .clear {
   margin-left: 10px;
+}
+.card-row {
+  margin-bottom: 10px;
+}
+.top-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
 }
 </style>
