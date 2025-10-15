@@ -65,7 +65,12 @@
           <a-button type="primary" icon="search" theme="filled">
             检索论文
           </a-button>
-          <a-button type="primary" icon="download" theme="filled">
+          <a-button
+            type="primary"
+            icon="download"
+            theme="filled"
+            @click="exportArticles"
+          >
             导出论文
           </a-button>
         </div>
@@ -140,6 +145,7 @@ for (let i = 0; i < 13; i++) {
 }
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import { ARTICLE_OPTIONS, SORT_OPTIONS } from "../utils/constant";
+import { exportArticles } from "../api/post";
 export default {
   data() {
     return {
@@ -203,8 +209,15 @@ export default {
         item.detailChecked = e.target.checked;
       });
     },
+    // 单选
     selectOne(item, index) {
       console.log(item, index);
+    },
+    // 导出所有论文
+    exportArticles() {
+      const data = null;
+      const result = exportArticles(data);
+      console.log(result);
     },
   },
   created() {
