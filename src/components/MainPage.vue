@@ -85,15 +85,6 @@
               导出论文
             </a-button>
           </div>
-          <!-- 论文时间分布图表 -->
-          <div v-if="this.papers.length > 0">
-            <p style="font-weight: bold; font-size: 20px; text-align: center">
-              论文时间分布
-            </p>
-            <div>
-              <canvas></canvas>
-            </div>
-          </div>
 
           <div>
             <div :style="{ borderBottom: '1px solid #E9E9E9' }">
@@ -142,24 +133,12 @@
 </template>
 
 <script>
-const papers = [];
-for (let i = 0; i < 13; i++) {
-  papers.push({
-    url: "https://www.antdv.com/",
-    titleZH: "一篇中文论文",
-    author: "大卫",
-    abstractZH: "这是一篇中文文献摘要",
-    titleEN: "an English article",
-    abstractEN: "this is a Chinese article abstract",
-    detailVisable: false,
-    detailChecked: false,
-  });
-}
 import locale from "ant-design-vue/es/date-picker/locale/zh_CN";
 import { ARTICLE_OPTIONS, SORT_OPTIONS } from "../utils/constant";
-import { exportArticles } from "../api/post";
+import { searchPapers } from "../api/post";
 import SearchModal from "./SearchModal.vue";
 import { isEmpty, isNaturalNumber, openMessage } from "../utils/common";
+import moment from "moment";
 export default {
   components: { SearchModal },
   data() {
@@ -182,7 +161,7 @@ export default {
       collapsed: false,
       locale,
       value: "1",
-      papers,
+      papers: [],
       pagination: {
         onChange: (page) => {
           console.log(page);
@@ -217,12 +196,12 @@ export default {
     },
     // 卡片展示更多内容
     showDetails(item, index) {
-      papers[index].detailVisable = !papers[index].detailVisable;
+      this.papers[index].detailVisable = !this.papers[index].detailVisable;
     },
     // 选择所有卡片
     selectAll(e) {
       console.log(e);
-      papers.map((item) => {
+      this.papers.map((item) => {
         item.detailChecked = e.target.checked;
       });
     },
@@ -231,11 +210,7 @@ export default {
       console.log(item, index);
     },
     // 导出所有论文
-    exportArticles() {
-      const data = null;
-      const result = exportArticles(data);
-      console.log(result);
-    },
+    exportArticles() {},
     // 打开搜索框
     openSearch() {
       this.searchModalVisable = true;
@@ -245,7 +220,7 @@ export default {
       this.searchModalVisable = false;
     },
     // 真实搜索
-    realSearch(formData) {
+    async realSearch(formData) {
       console.log("返回回来的formDadata", formData);
       try {
         if (isEmpty(formData)) {
@@ -254,6 +229,16 @@ export default {
         if (isEmpty(formData.number) || !isNaturalNumber(formData.number)) {
           openMessage("搜索出错", "论文数量不为自然数", 3);
         }
+
+        const postData = {
+          articleType: formData.articleType,
+          startDate: moment(formData.date[0]).format("yy-MM-DD"),
+          endDate: moment(formData.date[1]).format("yy-MM-DD"),
+          number: Number(formData.number),
+        };
+        const data = await searchPapers(postData);
+        console.log("返回的结果是?", data);
+        this.papers = data.data;
       } catch {
         openMessage("搜索出错", "存在未知系统错误", 3);
       } finally {
