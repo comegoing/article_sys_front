@@ -66,7 +66,6 @@ export default {
     },
     // 确定搜索
     handleOk() {
-      console.log("submit!", this.form);
       this.$emit("search", this.form);
     },
   },
