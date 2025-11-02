@@ -1,17 +1,18 @@
 <template>
-  <div>
+  <div class="main-container">
     <SearchModal
       :searchModalVisable="searchModalVisable"
       @closeSearch="closeSearch"
       @search="realSearch"
     />
-    <a-layout id="main-top">
+    <a-layout class="layout-wrapper">
       <a-layout-header class="header">
         <div class="logo"><a-icon type="home" /> arXiv论文筛选与管理系统</div>
       </a-layout-header>
-      <p></p>
-      <a-layout class="body">
+
+      <a-layout class="main-body">
         <a-layout-sider class="left-side" :width="300">
+          <!-- 左侧筛选条件内容保持不变 -->
           <div class="select">
             <a-icon type="edit" theme="twoTone" /> 筛选条件
             <a-button class="clear" type="primary" icon="delete" @click="clear">
@@ -65,8 +66,9 @@
             </a-select>
           </a-row>
         </a-layout-sider>
+
         <a-layout-content class="content">
-          <!-- 顶部搜索栏与导出框 -->
+          <!-- 内容区域保持不变 -->
           <div class="top-content">
             <a-button
               type="primary"
@@ -86,7 +88,12 @@
             </a-button>
           </div>
 
-          <div>
+          <!-- 空状态显示 -->
+          <div v-if="papers.length === 0" class="empty-state">
+            <a-empty description="暂无论文数据" />
+          </div>
+
+          <div v-if="papers.length !== 0">
             <div :style="{ borderBottom: '1px solid #E9E9E9' }">
               <a-checkbox
                 @change="selectAll"
@@ -117,14 +124,15 @@
                   <a slot="extra" @click="showDetails(item, index)">详情</a>
                   <p>{{ item.author }}</p>
                   <p>{{ item.abstractZH }}</p>
-                  <p v-if="item.detailVisable">{{ item.titleEN }}</p>
-                  <p v-if="item.detailVisable">{{ item.abstractEN }}</p>
+                  <p v-if="item.detailVisible">{{ item.titleEN }}</p>
+                  <p v-if="item.detailVisible">{{ item.abstractEN }}</p>
                 </a-card>
               </div>
             </a-row>
           </div>
         </a-layout-content>
       </a-layout>
+
       <a-layout-footer class="footer">
         © 2025 arXiv论文筛选与管理系统 | 专为学术研究人员设计
       </a-layout-footer>
@@ -196,7 +204,7 @@ export default {
     },
     // 卡片展示更多内容
     showDetails(item, index) {
-      this.papers[index].detailVisable = !this.papers[index].detailVisable;
+      this.papers[index].detailVisible = !this.papers[index].detailVisible;
     },
     // 选择所有卡片
     selectAll(e) {
@@ -238,6 +246,7 @@ export default {
         };
         const data = await searchPapers(postData);
         console.log("返回的结果是?", data);
+
         this.papers = data.data;
       } catch {
         openMessage("搜索出错", "存在未知系统错误", 3);
@@ -253,23 +262,25 @@ export default {
 };
 </script>
 
-<style>
-#main-top .logo {
-  color: #1a56db;
-  font-weight: bold;
-  font-size: 24px;
-  width: auto;
-  height: 100%;
-  background: none;
+<style scoped>
+.main-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-.select {
-  color: black;
-  font-weight: bold;
-  font-size: 22px;
-  width: auto;
-  background: none;
-  margin-bottom: 20px;
+
+.layout-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
+
+.main-body {
+  flex: 1;
+  display: flex;
+  min-height: 90vh; /* 占据屏幕90%高度 */
+}
+
 .header {
   background: #fff !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
@@ -279,58 +290,102 @@ export default {
   align-items: center !important;
   text-align: center !important;
   height: 60px !important;
+  flex-shrink: 0; /* 防止header被压缩 */
 }
+
+.left-side {
+  background: #fff !important;
+  padding: 10px 10px;
+  margin: 0 10px 10px 10px;
+  height: auto;
+  min-height: 100%; /* 确保左侧栏填满高度 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.content {
+  margin: 0 10px 10px 10px;
+  padding: 10px 10px;
+  background: #fff;
+  min-height: 100%; /* 确保内容区域填满高度 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  flex: 1;
+}
+
 .footer {
   background: #fff !important;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.15) !important;
   border-top: 1px solid #f0f0f0 !important;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
   text-align: center !important;
-  height: 15px !important;
+  height: 50px !important;
+  flex-shrink: 0; /* 防止footer被压缩 */
+  margin-top: auto; /* 确保footer在底部 */
 }
-.body {
-  width: 100%;
-  display: flex;
+
+/* 其他样式保持不变 */
+#main-top .logo {
+  color: #1a56db;
+  font-weight: bold;
+  font-size: 24px;
+  width: auto;
+  height: 100%;
+  background: none;
 }
-.left-side {
-  background: #fff !important;
-  padding: 10px 10px;
-  margin: 0 10px 10px 10px;
+
+.select {
+  color: black;
+  font-weight: bold;
+  font-size: 22px;
+  width: auto;
+  background: none;
+  margin-bottom: 20px;
 }
-.content {
-  margin: 0 10px 10px 10px;
-  padding: 10px 10px;
-  background: #fff;
-}
+
 .date {
   width: 220px !important;
 }
+
 .label {
   color: black;
   font-size: 18px;
   margin-bottom: 5px;
 }
+
 .opotions {
   padding-left: 20px;
   margin-bottom: 20px;
-  height: 50px;
+  height: auto;
+  min-height: 50px;
   width: 100%;
 }
+
 .query-search {
   width: 220px !important;
 }
+
 .clear {
   margin-left: 10px;
 }
+
 .card-row {
   margin-bottom: 10px;
 }
+
 .top-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px 0;
+}
+
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
 }
 </style>
