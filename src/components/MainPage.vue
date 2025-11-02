@@ -117,15 +117,63 @@
                 >
                 </a-checkbox>
                 <a-card
-                  :title="item.titleZH"
                   style="width: 100%"
                   :hoverable="true"
+                  @click="showDetails(item, index)"
                 >
-                  <a slot="extra" @click="showDetails(item, index)">详情</a>
-                  <p>{{ item.author }}</p>
-                  <p>{{ item.abstractZH }}</p>
-                  <p v-if="item.detailVisible">{{ item.titleEN }}</p>
-                  <p v-if="item.detailVisible">{{ item.abstractEN }}</p>
+                  <!-- 论文标题 -->
+                  <div class="paper-title">
+                    <p class="title-zh">{{ item.titleZH }}</p>
+                  </div>
+
+                  <!-- 作者信息 -->
+                  <div class="paper-authors">
+                    <p class="authors">
+                      <span class="label">作者:</span>
+                      {{ item.author }}
+                    </p>
+                  </div>
+
+                  <!-- 日期信息 -->
+                  <div class="paper-meta">
+                    <p class="date">
+                      <span class="label">发布日期:</span>
+                      {{ item.date }}
+                    </p>
+                  </div>
+
+                  <!-- 中文摘要 -->
+                  <div class="paper-abstract">
+                    <p class="abstract-label">摘要</p>
+                    <p class="abstract-content">{{ item.abstractZH }}</p>
+                  </div>
+
+                  <!-- 详细信息（展开时显示） -->
+                  <div v-if="item.detailVisible" class="paper-details">
+                    <!-- 英文标题 -->
+                    <div class="paper-title-en">
+                      <p class="title-en">
+                        <span class="label">Title:</span>
+                        {{ item.titleEN }}
+                      </p>
+                    </div>
+
+                    <!-- 英文摘要 -->
+                    <div class="paper-abstract-en">
+                      <p class="abstract-label">Abstract</p>
+                      <p class="abstract-content">{{ item.abstractEN }}</p>
+                    </div>
+
+                    <!-- 论文链接 -->
+                    <div class="paper-url">
+                      <p class="url">
+                        <span class="label">论文链接:</span>
+                        <a :href="item.url" target="_blank" class="url-link">{{
+                          item.url
+                        }}</a>
+                      </p>
+                    </div>
+                  </div>
                 </a-card>
               </div>
             </a-row>
@@ -387,5 +435,119 @@ export default {
   justify-content: center;
   align-items: center;
   height: 200px;
+}
+/* card内部样式 */
+/* 标题样式 */
+.paper-title {
+  margin-bottom: 12px;
+}
+
+.title-zh {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a0dab;
+  line-height: 1.4;
+  margin-bottom: 8px;
+  text-align: justify;
+}
+
+.title-en {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a0dab;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  font-style: italic;
+  text-align: justify;
+}
+
+/* 作者样式 */
+.paper-authors {
+  margin-bottom: 8px;
+}
+
+.authors {
+  font-size: 14px;
+  color: #1e8449;
+  line-height: 1.5;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+/* 元数据样式 */
+.paper-meta {
+  margin-bottom: 16px;
+}
+
+.date {
+  font-size: 13px;
+  color: #70757a;
+  line-height: 1.4;
+  margin-bottom: 0;
+}
+
+/* 摘要容器 */
+.paper-abstract {
+  margin-bottom: 16px;
+  border-left: 3px solid #e8eaed;
+  padding-left: 12px;
+}
+
+.paper-abstract-en {
+  margin-bottom: 16px;
+  border-left: 3px solid #dbeafe;
+  padding-left: 12px;
+  background-color: #f8fafc;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.abstract-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2c5282;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.abstract-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #4a5568;
+  text-align: justify;
+  margin-bottom: 0;
+}
+
+/* 详细信息容器 */
+.paper-details {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* 链接样式 */
+.paper-url {
+  margin-top: 12px;
+  padding: 8px 0;
+}
+
+.url {
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.4;
+  margin-bottom: 0;
+  word-break: break-all;
+}
+
+.url-link {
+  color: #1a56db;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.url-link:hover {
+  color: #1e40af;
+  text-decoration: underline;
 }
 </style>
